@@ -4,26 +4,27 @@ const consoleTable = require('console.table');
 
 
 const connection = mysql.createConnection({
-  host: 'localhost',
+    host: 'localhost',
 
-  // Your port; if not 3306
-  port: 3306,
+    // Your port; if not 3306
+    port: 3306,
 
-  // Your username
-  user: 'root',
+    // Your username
+    user: 'root',
 
-  // Your password
-  password: '',
-  database: 'employees.DB',
+    // Your password
+    password: 'Vinceh*963.',
+    database: 'employees_DB',
 });
 
 connection.connect((err) => {
-  if (err) throw err;
-  runInitQuestions();
+    if (err) throw err;
+    runInitQuestions();
 });
 
+//run prompt asking questions for user to answer
 const runInitQuestions = () => {
-    inquirer.prompt ({
+    inquirer.prompt({
         name: 'initQ',
         type: 'list',
         message: "What would you like to do ?",
@@ -38,7 +39,14 @@ const runInitQuestions = () => {
             // "Remove Employee",
             // "Remove Department",
             // "List Departments",
-            "Exist",
+            "Exit",
         ],
-    });
+    }).then((answers) => {
+        switch (answers.initQ) {
+            case 'Exit':
+                connection.end();
+                break;
+        }
+    })
 };
+
