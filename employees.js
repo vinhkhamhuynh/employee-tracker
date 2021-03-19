@@ -19,5 +19,26 @@ const connection = mysql.createConnection({
 
 connection.connect((err) => {
   if (err) throw err;
-  runSearch();
+  runInitQuestions();
 });
+
+const runInitQuestions = () => {
+    inquirer.prompt ({
+        name: 'initQ',
+        type: 'list',
+        message: "What would you like to do ?",
+        choices: [
+            "List Departments",
+            "List Employee's Role",
+            "List All Employees",
+            "Add New Department",
+            "Add New Employee's Role",
+            "Add Employee",
+            "Update Employee",
+            // "Remove Employee",
+            // "Remove Department",
+            // "List Departments",
+            "Exist",
+        ],
+    });
+};
