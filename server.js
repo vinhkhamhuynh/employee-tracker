@@ -29,7 +29,7 @@ const runInitQuestions = () => {
         type: 'list',
         message: "What would you like to do ?",
         choices: [
-            "List Departments",
+            "List Employees by Department",
             "List Employee's Role",
             "List All Employees",
             "Add New Department",
@@ -50,6 +50,10 @@ const runInitQuestions = () => {
             case 'List All Employees':
                 listAll();
                 break;
+
+            case 'List Employees by Department':
+                listDept();
+                break;
         }
     })
 };
@@ -60,7 +64,7 @@ const listAll = () => {
     console.log('LIST ALL EMPLOYEES');
     console.log('-------------');
 
-    //function to retrieve data from database
+    //function to retrieve all data from database
     const query = `SELECT employee.id, employee.first_name AS "FIRST NAME", employee.last_name AS "LAST NAME", role.title AS "ROLE", role.salary AS "SALARY", department.department_name AS "DEPARTMENT"
     FROM employee
     INNER JOIN role ON (role.id = employee.role_id)
@@ -73,4 +77,24 @@ const listAll = () => {
         runInitQuestions();
     })
 
+};
+
+//function to retrieve all employees by department
+const listDept = () => {
+    console.log('-------------');
+    console.log('LIST ALL EMPLOYEES BY DEPARTMENT');
+    console.log('-------------');
+
+    //function to retrieve all employees by department in database
+    const query = `SELECT department.department_name AS "DEPARTMENT", employee.first_name AS "FIRST NAME", employee.last_name AS "LAST NAME", role.title AS "ROLE", role.salary AS "SALARY"
+FROM department
+INNER JOIN role ON (department.id = role.department_id)
+INNER JOIN employee ON (role.id = employee.role_id)
+ORDER BY department.id;`;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        console.table(res);
+        runInitQuestions();
+    })
 };
