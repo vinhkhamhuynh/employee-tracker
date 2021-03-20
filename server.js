@@ -148,13 +148,13 @@ const addEmp = () => {
             },
             {
                 name: "new_role",
-                tyle: "list",
+                type: "list",
                 choices() {
-                    const choices = [];
+                    const roleChoices = [];
                     res.forEach(({title}) => {
-                        choices.push(title);
+                        roleChoices.push(title);
                     })
-                    return choices;
+                    return roleChoices;
                 },
                 message: "Choose a role for the New Employee"
             }
