@@ -46,7 +46,31 @@ const runInitQuestions = () => {
             case 'Exit':
                 connection.end();
                 break;
+
+            case 'List All Employees':
+                listAll();
+                break;
         }
     })
 };
 
+//function to list all (employeess, roles , departements)
+const listAll = () => {
+    console.log('-------------');
+    console.log('LIST ALL EMPLOYEES');
+    console.log('-------------');
+
+    //function to retrieve data from database
+    const query = `SELECT employee.id, employee.first_name AS "FIRST NAME", employee.last_name AS "LAST NAME", role.title AS "ROLE", role.salary AS "SALARY", department.department_name AS "DEPARTMENT"
+    FROM employee
+    INNER JOIN role ON (role.id = employee.role_id)
+    INNER JOIN department ON (department.id = role.department_id)
+    ORDER BY employee.id;`;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        // display on console.table
+        console.table(res);
+        runInitQuestions();
+    })
+
+};
