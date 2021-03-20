@@ -27,10 +27,10 @@ const runInitQuestions = () => {
     inquirer.prompt({
         name: 'initQ',
         type: 'list',
-        message: "What would you like to do ?",
+        message: "Welcome, What would you like to do ?",
         choices: [
             "List Employees by Department",
-            "List Employee's Role",
+            "List Employees by Role",
             "List All Employees",
             "Add New Department",
             "Add New Employee's Role",
@@ -54,6 +54,10 @@ const runInitQuestions = () => {
             case 'List Employees by Department':
                 listDept();
                 break;
+
+                case 'List Employees by Role':
+                    listRole();
+                    break;
         }
     })
 };
@@ -92,6 +96,26 @@ INNER JOIN role ON (department.id = role.department_id)
 INNER JOIN employee ON (role.id = employee.role_id)
 ORDER BY department.id;`;
     connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        console.table(res);
+        runInitQuestions();
+    })
+};
+
+//function to retrieve all employess by role
+const listRole = () => {
+    console.log('-------------');
+    console.log('LIST ALL EMPLOYEES BY ROLE');
+    console.log('-------------');
+
+    //function to retrieve all employees by ROLE in database
+    const query = `SELECT role.title AS "ROLE", employee.first_name AS "FIRST NAME", employee.last_name AS "LAST NAME"
+    FROM role
+    INNER JOIN department ON (role.department_id = department.id)
+    INNER JOIN employee ON (role.id = employee.role_id)
+    ORDER BY role.id;`;
+    connection.query(query, (err, res)=>{
         if (err) throw err;
 
         console.table(res);
