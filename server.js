@@ -34,7 +34,7 @@ const runInitQuestions = () => {
             "List All Employees",
             "Add New Department",
             "Add New Employee's Role",
-            "Add Employee",
+            "Add New Employee",
             "Update Employee",
             // "Remove Employee",
             // "Remove Department",
@@ -55,8 +55,12 @@ const runInitQuestions = () => {
                 listDept();
                 break;
 
-                case 'List Employees by Role':
-                    listRole();
+            case 'List Employees by Role':
+                listRole();
+                break;
+
+                case 'Add New Employee':
+                    addEmp();
                     break;
         }
     })
@@ -115,10 +119,72 @@ const listRole = () => {
     INNER JOIN department ON (role.department_id = department.id)
     INNER JOIN employee ON (role.id = employee.role_id)
     ORDER BY role.id;`;
-    connection.query(query, (err, res)=>{
+    connection.query(query, (err, res) => {
         if (err) throw err;
 
         console.table(res);
         runInitQuestions();
     })
 };
+
+//function to add new employee
+const addEmp = () => {
+
+    //call role table to populate choices for user to choose
+    connection.query('SELECT * FROM role', (err, res) => {
+        if (err) throw err;
+
+        //promt user to input new employee info
+        inquirer.prompt([
+            {
+                name: "first_name",
+                type: "input",
+                message: "Please enter new Employee 's first name"
+            },
+            {
+                name: "last_name",
+                type: "input",
+                message: "Please enter new Employee 's last name"
+            },
+            {
+                name: "new_role",
+                tyle: "list",
+                choices() {
+                    const choices = [];
+                    res.forEach(({title}) => {
+                        choices.push(title);
+                    })
+                    return choices;
+                },
+                message: "Choose a role for the New Employee"
+            }
+        ])
+            .then((answers) => {
+                let newRoleId;
+                res.forEach((res) => {
+                    if (res.title === answers.new_role) {
+                        newRoleId = res.id;
+                    }
+                })
+
+                //insert new data into database
+                connection.query(
+                    'INSERT INTO employee SET ?',
+                    {
+                        first_name: answers.first_name,
+                        last_name: answers.last_name,
+                        role_id: newRoleId
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        console.log('-------------');
+                        console.log('${answers.first_name} ${answers.last_name} is ADDED to New Employee');
+                        console.log('-------------');
+
+                        runInitQuestions();
+                    }
+                )
+            })
+    })
+};
+
