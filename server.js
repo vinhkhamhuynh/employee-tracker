@@ -1,26 +1,41 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
+const express = require('express');
+const sequelize = require('./config/connection');
 
 
-const connection = mysql.createConnection({
-    host: 'localhost',
 
-    // Your port; if not 3306
-    port: 3306,
+const app = express();
+const PORT = process.env.PORT || 3001;
 
-    // Your username
-    user: 'root',
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-    // Your password
-    password: 'Vinceh*963.',
-    database: 'employees_DB',
+sequelize.sync({ force: true }).then(() => {
+  app.listen(PORT, () => console.log('Now listening'));
+  runInitQuestions();
 });
 
-connection.connect((err) => {
-    if (err) throw err;
-    runInitQuestions();
-});
+
+// const connection = mysql.createConnection({
+//     host: 'localhost',
+
+//     // Your port; if not 3306
+//     port: 3306,
+
+//     // Your username
+//     user: 'root',
+
+//     // Your password
+//     password: 'Vinceh*963.',
+//     database: 'employees_DB',
+// });
+
+// connection.connect((err) => {
+//     if (err) throw err;
+//     runInitQuestions();
+// });
 
 //run prompt asking questions for user to answer
 const runInitQuestions = () => {
