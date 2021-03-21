@@ -53,7 +53,7 @@ const runInitQuestions = () => {
             "Add New Employee",
             "Update Employee",
             "Remove Employee",
-            "Remove Department",
+           
 
             "Exit",
         ],
@@ -90,6 +90,10 @@ const runInitQuestions = () => {
                 case 'Remove Employee':
                     removeEmp();
                     break;
+
+                    case 'Update Employee':
+                        updateEmp();
+                        break;    
         }
     })
 };
@@ -339,4 +343,71 @@ const removeEmp = () => {
             )
         })
     })
-}
+};
+
+const updateEmp = ()=> {
+    let query = `SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, role.title, role.id  
+    FROM employee 
+    INNER JOIN role ON (role.id = employee.role_id);`
+    connection.query(query, (err,res)=>{
+        if(err) throw err;
+        inquirer.prompt([
+            {
+                name:"update_emp",
+                type:"list",
+                choices(){
+                    const choicesArray= [];
+                    res.forEach(({first_name,last_name})=>{
+                        choicesArray.push(first_name +' '+ last_name);
+                    });
+                    return choicesArray;
+                },
+                message: "Please update employee's position from list below:"
+            },
+            {
+                name:"role_list",
+                type: "list",
+                choices(){
+                    const choices = [];
+                    res.forEach(({title})=> {
+                        choices.push(title);
+                    
+                    })
+                    return choices;
+                },
+                message: "Please choose a new position for this Employee"
+            }
+        ])
+        .then ((answers)=> {
+            let updateId;
+            let updatePk;
+            res.forEach((res)=> {
+                if((res.title) === answers.role_list) {
+                    updateId = res.id;
+                }
+                if((res.first_name +" "+ res.last_name) === answers.update_emp) {
+                    updatePk = res.id;
+                }
+            });
+            connection.query(
+                'UPDATE employee SET ? WHERE ?',
+                [
+                    {
+                        role_id: updateId,
+                    },
+                    {
+                        id: updatePk,
+                    },
+                ],
+                (err)=> {
+                    if (err) throw err;
+                console.log('-------------');
+                console.log(`${answers.update_emp}'s position is successfully Updated!`);
+                console.log('-------------');
+
+                runInitQuestions();
+                }
+            )
+        })
+    })
+};
