@@ -2,40 +2,41 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
 const express = require('express');
-const sequelize = require('./config/connection');
+// const sequelize = require('./config/connection');
 
 
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+// const app = express();
+// const PORT = process.env.PORT || 3001;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
-sequelize.sync({ force: true }).then(() => {
-  app.listen(PORT, () => console.log('Now listening'));
-  runInitQuestions();
+// const connection = sequelize.sync({ force: true }).then(() => {
+//   app.listen(PORT, () => console.log('Now listening'));
+
+// });
+
+
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+
+    // Your port; if not 3306
+    port: 3306,
+
+    // Your username
+    user: 'root',
+
+    // Your password
+    password: 'Vinceh*963.',
+    database: 'employees_DB',
 });
 
-
-// const connection = mysql.createConnection({
-//     host: 'localhost',
-
-//     // Your port; if not 3306
-//     port: 3306,
-
-//     // Your username
-//     user: 'root',
-
-//     // Your password
-//     password: 'Vinceh*963.',
-//     database: 'employees_DB',
-// });
-
-// connection.connect((err) => {
-//     if (err) throw err;
-//     runInitQuestions();
-// });
+connection.connect((err) => {
+    if (err) throw err;
+    runInitQuestions();
+});
 
 //run prompt asking questions for user to answer
 const runInitQuestions = () => {
@@ -48,12 +49,12 @@ const runInitQuestions = () => {
             "List Employees by Role",
             "List All Employees",
             "Add New Department",
-            "Add New Employee's Role",
+            "Add New Role",
             "Add New Employee",
             "Update Employee",
-            // "Remove Employee",
-            // "Remove Department",
-            // "List Departments",
+            "Remove Employee",
+            "Remove Department",
+
             "Exit",
         ],
     }).then((answers) => {
@@ -74,9 +75,13 @@ const runInitQuestions = () => {
                 listRole();
                 break;
 
-                case 'Add New Employee':
-                    addEmp();
-                    break;
+            case 'Add New Employee':
+                addEmp();
+                break;
+
+            case 'Add New Department':
+                addDept();
+                break;
         }
     })
 };
@@ -166,7 +171,7 @@ const addEmp = () => {
                 type: "list",
                 choices() {
                     const roleChoices = [];
-                    res.forEach(({title}) => {
+                    res.forEach(({ title }) => {
                         roleChoices.push(title);
                     })
                     return roleChoices;
@@ -193,7 +198,7 @@ const addEmp = () => {
                     (err) => {
                         if (err) throw err;
                         console.log('-------------');
-                        console.log('${answers.first_name} ${answers.last_name} is ADDED to New Employee');
+                        console.log(`${answers.first_name} ${answers.last_name} is ADDED to New Employee`);
                         console.log('-------------');
 
                         runInitQuestions();
@@ -203,3 +208,23 @@ const addEmp = () => {
     })
 };
 
+const addDept = () => {
+    inquirer.prompt({
+        name: "add_Dept",
+        type: "input",
+        message: " Please create a new Department name.",
+        validate: function validatInput(name) {
+            return name !== '';
+        }
+    }).then((answers) => {
+        connection.query('INSERT INTO department SET?', { department_name: answers.add_Dept, },
+            (err) => {
+                if (err) throw err;
+                console.log('-------------');
+                console.log(`${answers.add_Dept} department successfully added!`);
+                console.log('-------------');
+                runInitQuestions();
+            }
+        )
+    })
+};
