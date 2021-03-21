@@ -82,6 +82,10 @@ const runInitQuestions = () => {
             case 'Add New Department':
                 addDept();
                 break;
+
+                case 'Add New Role':
+                addRole();
+                break;
         }
     })
 };
@@ -227,4 +231,69 @@ const addDept = () => {
             }
         )
     })
+};
+
+const addRole = () => {
+
+    connection.query('SELECT * FROM department', (err, res) => {
+        if (err) throw err;
+
+        inquirer.prompt([
+            {
+                name: "add_role",
+                type: "input",
+                message: "Please enter new position title:",
+                validate: function validateInput(name) {
+                    return name !== '';
+                }
+            },
+            {
+                name: "add_salary",
+                type: "input",
+                message: "Please enter salary for position",
+                // validate: function validateInput(name) {
+                //     return name !== '';
+                // }
+            },
+            {
+                name: "role_dept",
+                type: "list",
+                choices() {
+                    const choicesArray = [];
+                    res.forEach(({ department_name }) => {
+                        choicesArray.push(department_name);
+                    });
+                    return choicesArray;
+                },
+                message: "The new position belong to which department?"
+            },
+        ])
+            .then((answers) => {
+                let NewDeptId;
+                res.forEach((res) => {
+                    if (res.department_name === answers.role_dept) {
+                        NewDeptId = res.id;
+                    }
+                })
+                connection.query('INSERT INTO role SET ?',
+                    {
+                        title: answers.add_role,
+                        salary: answers.add_salary,
+                        department_id: NewDeptId,
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        console.log('-------------');
+                        console.log(` New ${answers.add_role} position is successfully ADDED!`);
+                        console.log('-------------');
+
+                        runInitQuestions();
+
+                    }
+                )
+            });
+
+    });
+
+
 };
