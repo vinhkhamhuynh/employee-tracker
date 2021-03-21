@@ -86,6 +86,10 @@ const runInitQuestions = () => {
                 case 'Add New Role':
                 addRole();
                 break;
+
+                case 'Remove Employee':
+                    removeEmp();
+                    break;
         }
     })
 };
@@ -297,3 +301,42 @@ const addRole = () => {
 
 
 };
+
+const removeEmp = () => {
+    connection.query('SELECT * FROM employee', (err, res)=> {
+        if(err) throw err;
+        inquirer.prompt ({
+            name:"remove_emp",
+            type: "list",
+            choices(){
+                const choicesArray =[];
+                res.forEach(({first_name,last_name})=> {
+                    choicesArray.push(first_name +' '+ last_name);
+                });
+                return choicesArray;
+            },
+            message:"Please pick an employee to remove:"
+        })
+        .then((answers)=> {
+            let removeEmpId;
+            res.forEach((res)=> {
+                if ((res.first_name +' '+ res.last_name) === answers.remove_emp) {
+                    removeEmpId =res.id;
+                }
+            })
+            connection.query( 'DELETE FROM employee WHERE ?',
+            {
+                id:removeEmpId,
+            },
+            (err)=>{
+                if (err) throw err;
+                console.log('-------------');
+                console.log(`${answers.remove_emp} is removed from Company!`);
+                console.log('-------------');
+
+                runInitQuestions();
+            }
+            )
+        })
+    })
+}
