@@ -53,7 +53,7 @@ const runInitQuestions = () => {
             "Add New Employee",
             "Update Employee",
             "Remove Employee",
-           
+
 
             "Exit",
         ],
@@ -83,17 +83,17 @@ const runInitQuestions = () => {
                 addDept();
                 break;
 
-                case 'Add New Role':
+            case 'Add New Role':
                 addRole();
                 break;
 
-                case 'Remove Employee':
-                    removeEmp();
-                    break;
+            case 'Remove Employee':
+                removeEmp();
+                break;
 
-                    case 'Update Employee':
-                        updateEmp();
-                        break;    
+            case 'Update Employee':
+                updateEmp();
+                break;
         }
     })
 };
@@ -307,107 +307,107 @@ const addRole = () => {
 };
 
 const removeEmp = () => {
-    connection.query('SELECT * FROM employee', (err, res)=> {
-        if(err) throw err;
-        inquirer.prompt ({
-            name:"remove_emp",
+    connection.query('SELECT * FROM employee', (err, res) => {
+        if (err) throw err;
+        inquirer.prompt({
+            name: "remove_emp",
             type: "list",
-            choices(){
-                const choicesArray =[];
-                res.forEach(({first_name,last_name})=> {
-                    choicesArray.push(first_name +' '+ last_name);
+            choices() {
+                const choicesArray = [];
+                res.forEach(({ first_name, last_name }) => {
+                    choicesArray.push(first_name + ' ' + last_name);
                 });
                 return choicesArray;
             },
-            message:"Please pick an employee to remove:"
+            message: "Please pick an employee to remove:"
         })
-        .then((answers)=> {
-            let removeEmpId;
-            res.forEach((res)=> {
-                if ((res.first_name +' '+ res.last_name) === answers.remove_emp) {
-                    removeEmpId =res.id;
-                }
-            })
-            connection.query( 'DELETE FROM employee WHERE ?',
-            {
-                id:removeEmpId,
-            },
-            (err)=>{
-                if (err) throw err;
-                console.log('-------------');
-                console.log(`${answers.remove_emp} is removed from Company!`);
-                console.log('-------------');
+            .then((answers) => {
+                let removeEmpId;
+                res.forEach((res) => {
+                    if ((res.first_name + ' ' + res.last_name) === answers.remove_emp) {
+                        removeEmpId = res.id;
+                    }
+                })
+                connection.query('DELETE FROM employee WHERE ?',
+                    {
+                        id: removeEmpId,
+                    },
+                    (err) => {
+                        if (err) throw err;
+                        console.log('-------------');
+                        console.log(`${answers.remove_emp} is removed from Company!`);
+                        console.log('-------------');
 
-                runInitQuestions();
-            }
-            )
-        })
+                        runInitQuestions();
+                    }
+                )
+            })
     })
 };
 
-const updateEmp = ()=> {
+const updateEmp = () => {
     let query = `SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, role.title, role.id  
     FROM employee 
     INNER JOIN role ON (role.id = employee.role_id);`
-    connection.query(query, (err,res)=>{
-        if(err) throw err;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
         inquirer.prompt([
             {
-                name:"update_emp",
-                type:"list",
-                choices(){
-                    const choicesArray= [];
-                    res.forEach(({first_name,last_name})=>{
-                        choicesArray.push(first_name +' '+ last_name);
+                name: "update_emp",
+                type: "list",
+                choices() {
+                    const choicesArray = [];
+                    res.forEach(({ first_name, last_name }) => {
+                        choicesArray.push(first_name + ' ' + last_name);
                     });
                     return choicesArray;
                 },
                 message: "Please update employee's position from list below:"
             },
             {
-                name:"role_list",
+                name: "role_list",
                 type: "list",
-                choices(){
+                choices() {
                     const choices = [];
-                    res.forEach(({title})=> {
+                    res.forEach(({ title }) => {
                         choices.push(title);
-                    
+
                     })
                     return choices;
                 },
                 message: "Please choose a new position for this Employee"
             }
         ])
-        .then ((answers)=> {
-            let updateId;
-            let updatePk;
-            res.forEach((res)=> {
-                if((res.title) === answers.role_list) {
-                    updateId = res.id;
-                }
-                if((res.first_name +" "+ res.last_name) === answers.update_emp) {
-                    updatePk = res.id;
-                }
-            });
-            connection.query(
-                'UPDATE employee SET ? WHERE ?',
-                [
-                    {
-                        role_id: updateId,
-                    },
-                    {
-                        id: updatePk,
-                    },
-                ],
-                (err)=> {
-                    if (err) throw err;
-                console.log('-------------');
-                console.log(`${answers.update_emp}'s position is successfully Updated!`);
-                console.log('-------------');
+            .then((answers) => {
+                let updateId;
+                let updatePk;
+                res.forEach((res) => {
+                    if ((res.title) === answers.role_list) {
+                        updateId = res.role_id;
+                    }
+                    if ((res.first_name + " " + res.last_name) === answers.update_emp) {
+                        updatePk = res.id;
+                    }
+                });
+                connection.query(
+                    'UPDATE employee SET ? WHERE ?',
+                    [
+                        {
+                            role_id: updateId,
+                        },
+                        {
+                            id: updatePk,
+                        },
+                    ],
+                    (err) => {
+                        if (err) throw err;
+                        console.log('-------------');
+                        console.log(`${answers.update_emp}'s position is successfully Updated!`);
+                        console.log('-------------');
 
-                runInitQuestions();
-                }
-            )
-        })
+                        runInitQuestions();
+                    }
+                )
+            })
     })
 };
