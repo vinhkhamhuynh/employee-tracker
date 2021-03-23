@@ -1,7 +1,8 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const consoleTable = require('console.table');
-const express = require('express');
+// const express = require('express');
+require('dotenv').config();
 // const sequelize = require('./config/connection');
 
 
@@ -22,15 +23,18 @@ const express = require('express');
 const connection = mysql.createConnection({
     host: 'localhost',
 
-    // Your port; if not 3306
+    // // Your port; if not 3306
     port: 3306,
 
-    // Your username
-    user: 'root',
+    // // Your username
+    // user: 'root',
 
-    // Your password
-    password: 'Vinceh*963.',
-    database: 'employees_DB',
+    // // Your password
+    // password: '',
+    // database: 'employees_DB',
+   database: process.env.DB_NAME,
+    user:process.env.DB_USER,
+    password:process.env.DB_PASSWORD,
 });
 
 connection.connect((err) => {
